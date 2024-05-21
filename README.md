@@ -1,2 +1,1 @@
-# MSE110-Group14
-MSE 110 - Summer 2024 - Group 14 Project 1 - Line Tracker
+# MSE 110 - Summer 2024 - Group 14 Project 1 - Line Tracker
