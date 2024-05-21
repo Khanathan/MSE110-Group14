@@ -1,0 +1,19 @@
+Robot Behaviors:
+
+1. Start on one side of the line
+2. Move forward until detects an object 10 cm away
+3. Check the color of the line
+4.1. If Green: Move towards the obstacle, move it away from the line for 10 cm
+4.2. If Blue: Turn 180 degrees and move backward to the start.
+
+Specifications:
+- Turns in the line are at most 90 degree sharpness.
+
+Design notes:
+- Light sensor put on the side of the center of the robot.
+- A "middle/base" sensor input level is used to determine when to move forward.
+This is when the robot is right on the line and the line is straight forward.
+- Whenever the sensor reading changes (increase/decrease), call the turn(int sensorDiff) function (sensorDiff = sensorInput - middle)
+which starts turning by increasing the speed of one wheel (depending on whether sensorDiff is positive) and
+increase it an amount based on how large sensorDiff is.
+    + The idea is that the larger sensorDiff is, the sharper the turn (a 90 degree turn would produce a huge sensorDiff).
