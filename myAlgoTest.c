@@ -23,9 +23,18 @@ void forward()
 	setMotorSpeed(rightMotor, -forwardSpeed);
 }
 
+void forwardFor(int deg) {
+	setMotorTarget(leftMotor, -deg, 90);
+	setMotorTarget(rightMotor, -deg, 90);
+}
+
 void reverse() {
 	setMotorSpeed(leftMotor, 90);
 	setMotorSpeed(rightMotor, 90);
+}
+
+void reverseFor(int deg) {
+	forwardFor(-deg);	
 }
 
 void stopMoving()
@@ -205,8 +214,7 @@ void processObject() {
 		stopMoving();
 
 		//move forward
-		forward();
-		wait1Msec(2000);
+		forwardFor(480);
 		stopMoving();
 
 		//open claw
@@ -215,14 +223,15 @@ void processObject() {
 		setMotorSpeed(pinchMotor, 0);
 
 		//reverse
-		reverse();
+		reverseFor(480);
+		stopMoving();
 		wait1Msec(1000);
 
 		//turn to the left
 		if (lastLeft) {
-			rotateLeftFor(200);
+			rotateLeftFor(240);
 			} else {
-			rotateRightFor(200);
+			rotateRightFor(240);
 		}
 		stopMoving();
 
