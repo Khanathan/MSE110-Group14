@@ -193,14 +193,14 @@ void processObject() {
 
 		//close claw
 		setMotorSpeed(pinchMotor, -90);
-		wait1Msec(1000);
+		wait1Msec(1500);
 		setMotorSpeed(pinchMotor, 0);
 
 		//turn to the opposite of last turn (most likely to be away from the line and the track)
 		if (lastLeft) {
-			rotateRightFor(300);
+			rotateRightFor(240);
 			} else {
-			rotateLeftFor(300);
+			rotateLeftFor(240);
 		}
 		stopMoving();
 
@@ -219,7 +219,7 @@ void processObject() {
 		wait1Msec(1000);
 
 		//turn to the left
-		if (!lastLeft) {
+		if (lastLeft) {
 			rotateLeftFor(200);
 			} else {
 			rotateRightFor(200);
