@@ -59,7 +59,6 @@ void rotateLeftFor(int degrees) {
 		}
 		wait1Msec(10);
 	}
-	return false;
 }
 
 bool findLeftFor(int degrees) {
@@ -84,7 +83,7 @@ bool findLeftFor(int degrees) {
 	return false;
 }
 
-void findRightFor(int degrees) {
+void rotateRightFor(int degrees) {
 	resetMotorEncoder(leftMotor);
 	int motorEnc = getMotorEncoder(leftMotor);
 	rotateRight();
