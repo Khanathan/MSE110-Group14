@@ -264,6 +264,36 @@ void processObject() {
 	}
 }
 
+//mega
+void mega() {
+	int baseDur = 75;
+	int baseNoteDur = 5;
+	setSoundVolume(1);
+	playTone(293, baseNoteDur * 1);
+	wait1Msec(baseDur * 1);
+	playTone(293, baseNoteDur * 1);
+	wait1Msec(baseDur * 1);
+	playTone(587, baseNoteDur * 2);
+	wait1Msec(baseDur * 2);
+	playTone(440, baseNoteDur * 2);
+	wait1Msec(baseDur * 2);
+	wait1Msec(baseDur * 1);
+	playTone(415, baseNoteDur * 1);
+	wait1Msec(baseDur * 1);
+	wait1Msec(baseDur * 1);
+	playTone(392, baseNoteDur * 1);
+	wait1Msec(baseDur * 1);
+	wait1Msec(baseDur * 1);
+	playTone(349, baseNoteDur * 2);
+	wait1Msec(baseDur * 2);
+	playTone(293, baseNoteDur * 1);
+	wait1Msec(baseDur * 1);
+	playTone(349, baseNoteDur * 1);
+	wait1Msec(baseDur * 1);
+	playTone(392, baseNoteDur * 1);
+	wait1Msec(baseDur * 1);
+}
+
 task main()
 {
 	float distance;
@@ -284,4 +314,5 @@ task main()
 		forward();
 		wait1Msec(40);
 	}
+	mega();
 }
