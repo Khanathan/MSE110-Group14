@@ -10,8 +10,8 @@ ultraSensor = UltrasonicSensor(Port.S4)
 
 
 detectDistance = 17
-forwardSpeed = 40
-defSpeed = 25
+forwardSpeed = 25
+defSpeed = 15
 lowRed = 10
 highRed = 15
 highGreen = 20
