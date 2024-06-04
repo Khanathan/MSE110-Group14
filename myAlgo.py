@@ -9,7 +9,7 @@ colorSensor = ColorSensor(Port.S1)
 ultraSensor = UltrasonicSensor(Port.S4)
 
 
-detectDistance = 17
+detectDistance = 15
 forwardSpeed = 25
 defSpeed = 15
 lowRed = 10
