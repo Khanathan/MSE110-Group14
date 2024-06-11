@@ -1,6 +1,11 @@
+#!/usr/bin/env pybricks-micropython
 from pybricks.hubs import EV3Brick
-from pybricks.ev3devices import Motor
-from pybricks.parameters import Port
+from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor, InfraredSensor, UltrasonicSensor, GyroSensor)
+from pybricks.parameters import Port, Stop, Direction, Button, Color
+from pybricks.tools import wait, StopWatch, DataLog
+from pybricks.robotics import DriveBase
+from pybricks.media.ev3dev import SoundFile, ImageFile
+
 ev3 = EV3Brick()
 rightMotor = Motor(Port.A)
 leftMotor = Motor(Port.D)
@@ -9,15 +14,17 @@ colorSensor = ColorSensor(Port.S1)
 ultraSensor = UltrasonicSensor(Port.S4)
 
 
-detectDistance = 15
-forwardSpeed = 25
-defSpeed = 15
+detectDistance = 135
+forwardSpeed = 250
+turnSpeed = 140
+pinchSpeed = 3000
 lowRed = 10
-highRed = 15
+highRed = 9
 highGreen = 20
 turnLimit = 230 #SEARCH SWEEP ANGLE
 finish = False
 lastLeft = False
+lastGreen = True #0 Green, 1 Blue
 
 def beep():
     ev3.speaker.set_volume(50, '_all_')
@@ -29,28 +36,28 @@ def mega():
     ev3.speaker.set_volume(50, '_all_')
 
     ev3.speaker.beep(293, baseNoteDur * 1)
-    ev3.wait(baseDur * 1)
+    wait(baseDur * 1)
     ev3.speaker.beep(293, baseNoteDur * 1)
-    ev3.wait(baseDur * 1)
+    wait(baseDur * 1)
     ev3.speaker.beep(587, baseNoteDur * 2)
-    ev3.wait(baseDur * 2)
+    wait(baseDur * 2)
     ev3.speaker.beep(440, baseNoteDur * 2)
-    ev3.wait(baseDur * 2)
-    ev3.wait(baseDur * 1)
+    wait(baseDur * 2)
+    wait(baseDur * 1)
     ev3.speaker.beep(415, baseNoteDur * 1)
-    ev3.wait(baseDur * 1)
-    ev3.wait(baseDur * 1)
+    wait(baseDur * 1)
+    wait(baseDur * 1)
     ev3.speaker.beep(392, baseNoteDur * 1)
-    ev3.wait(baseDur * 1)
-    ev3.wait(baseDur * 1)
+    wait(baseDur * 1)
+    wait(baseDur * 1)
     ev3.speaker.beep(349, baseNoteDur * 2)
-    ev3.wait(baseDur * 2)
+    wait(baseDur * 2)
     ev3.speaker.beep(293, baseNoteDur * 1)
-    ev3.wait(baseDur * 1)
+    wait(baseDur * 1)
     ev3.speaker.beep(349, baseNoteDur * 1)
-    ev3.wait(baseDur * 1)
+    wait(baseDur * 1)
     ev3.speaker.beep(392, baseNoteDur * 1)
-    ev3.wait(baseDur * 1)
+    wait(baseDur * 1)
 
 def stopMoving():
     rightMotor.hold()
@@ -64,7 +71,7 @@ def forwardFor(deg):
     rightMotor.reset_angle(0)
     forward()
     while (-rightMotor.angle() < deg):
-        ev3.wait(10)
+        wait(10)
 
 def reverse():
     rightMotor.run(forwardSpeed)
@@ -72,17 +79,17 @@ def reverse():
 
 def reverseFor(deg):
     rightMotor.reset_angle(0)
-    forward()
+    reverse()
     while (rightMotor.angle() < deg):
-        ev3.wait(10)
+        wait(10)
 
 def rotateRight():
-    leftMotor.run(-defSpeed)
-    rightMotor.run(defSpeed)
+    leftMotor.run(-turnSpeed)
+    rightMotor.run(turnSpeed)
 
 def rotateLeft():
-    leftMotor.run(defSpeed)
-    rightMotor.run(-defSpeed)
+    leftMotor.run(turnSpeed)
+    rightMotor.run(-turnSpeed)
 
 def rotateRightFor(deg):
     rotateMotorFor(deg, leftMotor)
@@ -97,7 +104,7 @@ def rotateMotorFor(deg, motor):
     else:
         rotateLeft()
     while (-motor.angle() < deg):
-        ev3.wait(10)
+        wait(10)
 
 def findLeftFor(deg):
     rightMotor.reset_angle(0)
@@ -106,6 +113,7 @@ def findLeftFor(deg):
         colors = colorSensor.rgb()
         if (colors[0] <= lowRed):
             stopMoving()
+            global lastLeft
             lastLeft = True
             return True    
     return False
@@ -117,16 +125,18 @@ def findRightFor(deg):
         colors = colorSensor.rgb()
         if (colors[0] <= lowRed):
             stopMoving()
+            global lastLeft
             lastLeft = False
             return True
     return False
 
 def turnBack():
     reverse()
-    ev3.wait(150)
+    wait(150)
     rotateRightFor(360)
 
 def findLine():
+    global finish
     stopMoving()
 
     if lastLeft:
@@ -148,25 +158,32 @@ def findLine():
     finish = True
 
 def processObject():
+    #Pause and beep
     stopMoving()
     beep()
-    ev3.wait(2000)
+    wait(2000)
 
     colors = colorSensor.rgb()
     notOnline = (colors[0] >= highRed)
     if notOnline:
         findLine()
+        
+    global lastGreen
+    global lastLeft
+    global pinchSpeed
     
-    isOnGreen = (colors[1] >= highGreen)
-    if isOnGreen:
+    if lastGreen:
+        #move towwards object
         forward()
-        ev3.wait(300)
+        wait(300)
         stopMoving()
 
-        pinchMotor.run(-90)
-        ev3.wait(1500)
+        #close pinch
+        pinchMotor.run(-pinchSpeed)
+        wait(1500)
         pinchMotor.hold()
 
+        #turn away
         if lastLeft:
             rotateRightFor(240)
         else:
@@ -174,31 +191,39 @@ def processObject():
         
         stopMoving()
 
+        #move away from track
         forwardFor(480)
         stopMoving()
 
-        pinchMotor.run(90)
-        ev3.wait(1500)
+        #open pinch
+        pinchMotor.run(pinchSpeed)
+        wait(1500)
         pinchMotor.hold()
 
+        #reverse back into the line
         reverseFor(480)
         stopMoving()
-        ev3.wait(500)
-
+        wait(100)
+        
+        #rotate back into the line
         if lastLeft:
             rotateLeftFor(240)
         else:
             rotateRightFor(240)
-        
         stopMoving()
+
     else:
         turnBack()
+        lastLeft = not lastLeft
+
 
 def main():
+    global finish
+    global detectDistance
+
     while not finish:
-
         distance = ultraSensor.distance(False)
-
+        
         if distance <= detectDistance:
             processObject()
 
@@ -206,10 +231,17 @@ def main():
 
         if colors[0] >= highRed:
             findLine()
-
+        
+        global lastGreen
+        if (colors[1] >= highGreen):
+            lastGreen = True #Green
+        else:
+            lastGreen = False #Blue
         forward()
-        ev3.wait(40)
+        wait(40)
 
     stopMoving()
     mega()
-    ev3.wait(2000)
+    wait(2000)
+
+main()
