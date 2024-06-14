@@ -14,12 +14,13 @@ colorSensor = ColorSensor(Port.S1)
 ultraSensor = UltrasonicSensor(Port.S4)
 
 
-detectDistance = 135
+detectDistance = 130
 forwardSpeed = 250
 turnSpeed = 140
 pinchSpeed = 3000
+pinchDur = 2300
 lowRed = 10
-highRed = 9
+highRed = 15
 highGreen = 20
 turnLimit = 230 #SEARCH SWEEP ANGLE
 finish = False
@@ -111,7 +112,7 @@ def findLeftFor(deg):
     rotateLeft()
     while (-rightMotor.angle() < deg):
         colors = colorSensor.rgb()
-        if (colors[0] <= lowRed):
+        if (colors[0] < lowRed):
             stopMoving()
             global lastLeft
             lastLeft = True
@@ -123,7 +124,7 @@ def findRightFor(deg):
     rotateRight()
     while (-leftMotor.angle() < deg):
         colors = colorSensor.rgb()
-        if (colors[0] <= lowRed):
+        if (colors[0] < lowRed):
             stopMoving()
             global lastLeft
             lastLeft = False
@@ -161,33 +162,32 @@ def processObject():
     #Pause and beep
     stopMoving()
     beep()
-    wait(2000)
+    wait(500)
 
     colors = colorSensor.rgb()
-    notOnline = (colors[0] >= highRed)
+    notOnline = (colors[0] > lowRed)
     if notOnline:
         findLine()
         
     global lastGreen
     global lastLeft
-    global pinchSpeed
     
     if lastGreen:
         #move towwards object
         forward()
-        wait(300)
+        wait(450)
         stopMoving()
 
         #close pinch
         pinchMotor.run(-pinchSpeed)
-        wait(1500)
+        wait(pinchDur)
         pinchMotor.hold()
 
         #turn away
         if lastLeft:
-            rotateRightFor(240)
+            rotateLeftFor(210)
         else:
-            rotateLeftFor(240)
+            rotateRightFor(210)
         
         stopMoving()
 
@@ -197,7 +197,7 @@ def processObject():
 
         #open pinch
         pinchMotor.run(pinchSpeed)
-        wait(1500)
+        wait(pinchDur)
         pinchMotor.hold()
 
         #reverse back into the line
@@ -207,14 +207,15 @@ def processObject():
         
         #rotate back into the line
         if lastLeft:
-            rotateLeftFor(240)
+            rotateRightFor(210)
         else:
-            rotateRightFor(240)
+            rotateLeftFor(210)
         stopMoving()
 
     else:
         turnBack()
         lastLeft = not lastLeft
+
 
 
 def main():
@@ -229,7 +230,7 @@ def main():
 
         colors = colorSensor.rgb()
 
-        if colors[0] >= highRed:
+        if colors[0] > highRed:
             findLine()
         
         global lastGreen
@@ -238,7 +239,7 @@ def main():
         else:
             lastGreen = False #Blue
         forward()
-        wait(40)
+        wait(50)
 
     stopMoving()
     mega()
