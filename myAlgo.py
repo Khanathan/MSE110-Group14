@@ -16,13 +16,13 @@ ultraSensor = UltrasonicSensor(Port.S4)
 
 detectDistance = 130
 forwardSpeed = 250
-turnSpeed = 140
+turnSpeed = 110
 pinchSpeed = 3000
 pinchDur = 2300
 lowRed = 10
 highRed = 15
 highGreen = 20
-turnLimit = 230 #SEARCH SWEEP ANGLE
+turnLimit = 200 #SEARCH SWEEP ANGLE
 finish = False
 lastLeft = False
 lastGreen = True #0 Green, 1 Blue
