@@ -19,15 +19,18 @@ task main()
 	datalogFlush();
 	datalogClose();
 
-	if (!datalogOpen(420, 2, true)) {
+	if (!datalogOpen(420, 2, false)) {
 			displayCenteredTextLine(4, "Datalog open failed");
 			return;
 	}
+
 	forward();
-	for (int i = 0; i < 200; i++) {
-		datalogAddShort(i, getColorSaturation(colorSensor));
+	for (int i = 1; i <= 200; i++) {
+		datalogAddShort(0, i);
+		datalogAddShort(1, getColorReflected(colorSensor));
 		sleep(25);
 	}
+
 	stopMoving();
 	datalogClose();
 }
