@@ -2,7 +2,7 @@
 #pragma config(Motor, motorA, rightMotor, tmotorEV3_Large, PIDControl, encoder)
 #pragma config(Motor, motorD, leftMotor, tmotorEV3_Large, PIDControl, encoder)
 
-const int speed = 10;
+const int speed = 5;
 
 void forward() {
 	setMotorSpeed(leftMotor, -speed);
