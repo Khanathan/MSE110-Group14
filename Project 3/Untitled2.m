@@ -2,7 +2,7 @@ Array=csvread('datalog-420.csv');
 index = Array(:, 1);
 reading = Array(:, 2);
 %plot(col1, col2)
-ws = 12;
+ws = 10;
 for i = 1:length(reading) - (ws - 1)
     OneLineDataAve(i) = sum(reading(i:i + (ws - 1))) / ws;
 end
@@ -14,7 +14,7 @@ for i = 1 : length(OneLineDataAve) - 1
 end
 plot(DataAveDiff);
 hold on
-[pks, locs] = findpeaks(DataAveDiff, 'MinPeakHeight', 17, 'MinPeakDistance', 10);
+[pks, locs] = findpeaks(DataAveDiff, 'MinPeakHeight', 1, 'MinPeakDistance', 5);
 plot(locs, pks, 'or');
 
 LOOKUPTABLE = [311113113; %A
@@ -44,6 +44,8 @@ LOOKUPTABLE = [311113113; %A
 331131111; %Y
 133131111]; %Z
 
-widths(locs(2:end) - locs(1:end - 1));
-widths = floor(widths / min(widths));
-scannedPattern = str2num(strrep(num2str(widths), ' ', ''));
+widths = (locs(2:end) - locs(1:end - 1));
+widths = round(widths / min(widths));
+scannedPattern = str2num(strrep(num2str(widths), ' ', ''))
+charVal = find(LOOKUPTABLE == scannedPattern);
+Letter = char(64 + charVal)
