@@ -33,6 +33,7 @@ void WallGen();
 void GridDraw();
 void DrawBot();
 void DisplayStartandEnd();
+int Solver();
 
 task main()
 {
@@ -44,7 +45,7 @@ task main()
 		GridDraw();
 		DisplayStartandEnd();
 		DrawBot();
-		sleep(1000);
+		sleep(200);
 		eraseDisplay();
 	}
 
@@ -205,35 +206,39 @@ void DrawBot()
 		break;
 	}
 }
+//SOLVER SOLVER SOLVER
 //=====================================================================
+
 const int colMove[] = {0, 1, 0, -1};
 const int rowMove[] = {1, 0, -1, 0};
+int wallCheck();
+void forward();
+void turnLeft();
+void turnRight();
+
 int Solver()
 {
-	while (CurrentPosCol != TargetPosCol && CurrentPosRow != TargetPosRow)
-	{
 		turnRight();
-		if (wallCheck == 0)
+		if (wallCheck() == 0)
 		{
 			forward();
 		}
 		else
 		{
 			turnLeft();
-			while (wallCheck == 1)
+			while (wallCheck() == 1)
 			{
 				turnLeft();
 			}
 			forward();
 		}
-	}
 	return 0;
 }
 
 void forward()
 {
 	CurrentPosCol += colMove[RobotDirection];
-	CurrentPosRow += colMove[RobotDirection];
+	CurrentPosRow += rowMove[RobotDirection];
 }
 
 int wallCheck()
@@ -253,6 +258,7 @@ int wallCheck()
 		return Grid[CurrentPosRow][CurrentPosCol].WestWall;
 		break;
 	}
+	return 0;
 }
 
 int turnRightArr[] = {1, 2, 3, 0};
