@@ -19,13 +19,13 @@ int RobotDirection = 0; // 0=North, 1=East, 2=South, 3=West
 
 // Start in the 0,0 Cell
 int StartPosRow = 0; // Starting position
-int StartPosCol = 0;
+int StartPosCol = 4;
 
 int CurrentPosRow = StartPosRow; // Starting position
 int CurrentPosCol = StartPosCol;
 
 int TargetPosRow = 3;
-int TargetPosCol = 0;
+int TargetPosCol = 1;
 
 int turnRightArr[] = {1, 2, 3, 0};
 int turnLeftArr[] = {3, 0, 1, 2};
@@ -140,7 +140,7 @@ void turnRight()
     resetGyro(gyro);
     while(SensorValue(gyro)<=85){
 	    setMotorSpeed(leftMotor, 25);
-	    setMotorSpeed(rightMotor, -25);
+	    setMotorSpeed(rightMotor, -20);
 		}
     setMotorSpeed(leftMotor, 0);
     setMotorSpeed(rightMotor, 0);
@@ -151,8 +151,8 @@ void turnLeft()
 {
     RobotDirection = turnLeftArr[RobotDirection];
     resetGyro(gyro);
-		while(SensorValue(gyro)<= -85){
-	    setMotorSpeed(leftMotor,-25);
+		while(SensorValue(gyro)>= -85){
+	    setMotorSpeed(leftMotor,-20);
 	    setMotorSpeed(rightMotor, 25);
 		}
     setMotorSpeed(leftMotor, 0);
