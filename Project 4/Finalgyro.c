@@ -16,7 +16,10 @@ Cell Grid[4][6];
 
 // Start Facing North
 int RobotDirection = 0; // 0=North, 1=East, 2=South, 3=West
-
+int north = 0;
+int east = 1;
+int south = 2;
+int west = 3;
 // Start in the 0,0 Cell
 int StartPosRow = 0; // Starting position
 int StartPosCol = 4;
@@ -29,39 +32,35 @@ int TargetPosCol = 1;
 
 int turnRightArr[] = {1, 2, 3, 0};
 int turnLeftArr[] = {3, 0, 1, 2};
-
+int reverseMagic[] = {2, 3, 0, 1};
 
 const int colMove[] = {0, 1, 0, -1};
 const int rowMove[] = {1, 0, -1, 0};
 
+//STACK
+int turns[64];
+int stackPt = 0;
 
-int turns[24];
-int cnt=0;
+void reverseMoves() {
+	for (int i = 0; i <= stackPt; i++) {
+		turns[i] = reverseMagic[turns[i]];
+	}
+}
+
+void stackInit() {
+	for (int i = 0; i < 64; i++) {
+		turns[i] = -1;
+	}	
+}
 
 int Solver();
-void endRun();
+void goBackHome();
 void GridInit();
 void forward();
 void turnLeft();
 void turnRight();
+void stopMoving();
 
-task main()
-{
-		GridInit();
-		setSoundVolume(2);
-        playImmediateTone(300, 200);
-        wait1Msec(2000);
-		while ((CurrentPosRow != TargetPosRow) || (CurrentPosCol != TargetPosCol))
-        {
-				Solver();
-		}
-		playImmediateTone(300, 200);
-		wait1Msec(2000);
-		while (true)
-		{
-			endRun();
-		}
-}
 
 void GridInit()
 {
@@ -80,91 +79,134 @@ void GridInit()
     }
 }
 
+//How far to move forward
+const int forwardTime = 2300;
+bool goHome = false;
+
 int Solver()
 {
-
-        float distance;
+    float distance;
 
 		turnRight();
 		distance = getUSDistance(ultrasonicSensor);
-        wait1Msec(500);
-		if (distance > 15)
+    wait1Msec(500);
+    
+		if (distance > 10)
 		{
 			forward();
 		}
 		else
 		{
-            for (int x = 0; x < 3; x++){
-                turnLeft();
-                wait1Msec(500);
-                distance = getUSDistance(ultrasonicSensor);
-                if (distance > 15)
-                {
-                    forward();
-                    break;
-                }
-            }
+    	for (int x = 0; x < 3; x++){
+      	turnLeft();
+        wait1Msec(500);
+        if (getUSDistance(ultrasonicSensor) > 10)
+        {
+        	forward();
+         	break;
+				}
+    	}
 		}
-	return 0;
+		return 0;
+}
+
+void wallBump() {
+	if(SensorValue(ultrasonicSensor) <= 13){
+    setMotorSpeed(leftMotor, 28);
+		setMotorSpeed(rightMotor, 28);
+		wait1Msec(650);			
+    setMotorSpeed(leftMotor, -28);
+		setMotorSpeed(rightMotor, -28);
+		wait1Msec(400);
+		stopMoving();
+	}	
 }
 
 void forward()
 {
-    if (cnt != 0){
-        if (abs(turns[cnt-1] - RobotDirection) != 2 ){
-            turns[cnt] = RobotDirection;
-            cnt++;
-        }
-        else{
-            turns[cnt-1] = -1;
-            cnt--;
-        }
-
+	if(!goHome){
+  	if (stackPt == 0 || abs(turns[stackPt-1] - RobotDirection) != 2 )
+    {
+    	turns[stackPt] = RobotDirection;
+      stackPt++;
     }
-    else{
-        turns[0] = RobotDirection;
-        cnt++;
+    else
+    {
+    	turns[stackPt-1] = -1;
+      stackPt--;
     }
-    CurrentPosCol += colMove[RobotDirection];
+  }
+  
+  CurrentPosCol += colMove[RobotDirection];
 	CurrentPosRow += rowMove[RobotDirection];
-	setMotorSpeed(leftMotor, 20);
-	setMotorSpeed(rightMotor, 20);
-    wait1Msec(2600);
-    setMotorSpeed(leftMotor, 0);
-    setMotorSpeed(rightMotor, 0);
+	
+	setMotorSpeed(leftMotor, 28);
+	setMotorSpeed(rightMotor, 28);
+
+  wait1Msec(forwardTime);
+  stopMoving();
+  wallBump();
 }
 
+void stopMoving() {
+	setMotorSpeed(leftMotor, 0);
+	setMotorSpeed(rightMotor, 0);
+}
+/*
+/void turnAdjust() 
+{
+	stopMoving();
+	if (getUSDistance(ultrasonicSensor) > 8)
+  {
+        setMotorSpeed(leftMotor, 28);
+				setMotorSpeed(rightMotor, 28);
+				wait1Msec(500);
+				stopMoving();
+
+	}
+	if(SensorValue(ultrasonicSensor) <= 6){
+    		//setMotorSpeed(leftMotor, -28);
+				//setMotorSpeed(rightMotor, -28);
+				//wait1Msec(100);
+				stopMoving();
+    }
+}
+*/
 void turnRight()
 {
     RobotDirection = turnRightArr[RobotDirection];
     resetGyro(gyro);
-    while(SensorValue(gyro)<=85){
-	    setMotorSpeed(leftMotor, 25);
-	    setMotorSpeed(rightMotor, -20);
+    while(SensorValue(gyro) <= 80){
+	    setMotorSpeed(leftMotor, 28);
+	    setMotorSpeed(rightMotor, -28);
+	    wait1Msec(10);
 		}
-    setMotorSpeed(leftMotor, 0);
-    setMotorSpeed(rightMotor, 0);
-
+		wallBump();
 }
 
 void turnLeft()
 {
     RobotDirection = turnLeftArr[RobotDirection];
     resetGyro(gyro);
-		while(SensorValue(gyro)>= -85){
-	    setMotorSpeed(leftMotor,-20);
-	    setMotorSpeed(rightMotor, 25);
+		while(SensorValue(gyro) >= -70){
+	    setMotorSpeed(leftMotor, -28);
+	    setMotorSpeed(rightMotor, 28);
+	    wait1Msec(10);
 		}
-    setMotorSpeed(leftMotor, 0);
-    setMotorSpeed(rightMotor, 0);
+		wallBump();
 }
 
-void endRun()
+//pop()
+
+void goBackHome()
 {
+	reverseMoves();
+	goHome = true;
     turnRight();
     turnRight();
     forward();
-    for(int x = 23; x < -1; x++){
+    for(int x = stackPt; x < -1; x--){
+    	displayCenteredTextLine(5, "%d",RobotDirection-turns[x]);
         if (turns[x] != -1){
             if ((RobotDirection-turns[x]) == 2){
                 forward();
@@ -177,4 +219,21 @@ void endRun()
             }
         }
     }
+}
+
+task main()
+{
+		GridInit();
+		setSoundVolume(2);
+    playImmediateTone(300, 200);
+    wait1Msec(2000);
+    stackInit();
+		while ((CurrentPosRow != TargetPosRow) || (CurrentPosCol != TargetPosCol))
+        {
+				Solver();
+		}
+		
+		playImmediateTone(300, 200);
+		wait1Msec(2000);
+		goBackHome();
 }
